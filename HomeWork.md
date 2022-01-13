@@ -2,19 +2,28 @@
 	node_exporter 
 	-Cоздайть простой unit-файл для node_exporter:
 
+
 [Unit]
 Description=Node Exporter
+Documentation=https://github.com/prometheus/node_exporter/blob/master/README.md
 After=network-online.target
 
 [Service]
+EnvironmentFile=-/etc/default/node_exporter
+ExecStart=/bin/bash -c /home/vagrant/node_exporter-1.3.0.linux-amd64/node_exporter* $OPTIONS
+KillMode=process
+Restart=on-failure
+RestartSec=3
 User=node_exporter
 Group=node_exporter
 Type=simple
-ExecStart=/usr/local/bin/node_exporter
 
 [Install]
 WantedBy=multi-user.target
 
+
+Дописал пару параметров для загрузки файла из /etc/default/node_exporter
+Запускаем bash c ключём -с
 
 	-Поместите его в автозагрузку
 
@@ -295,13 +304,11 @@ ulimit -u 1560
 Не знаю точно, но должны была срабоать ограницение по создание файлов 
 dmesg >> /tmp/logg.md
 
-cat /tmp/logg.md |greep pid_max
+cat /tmp/logg.md |greep cgroup
 
 Log показывает:
 
-[    0.145273] pid_max: default: 32768 minimum: 301
-
-
-Возможно эта строчка ещё играет роль
-[0.131052] rcu:     RCU restricting CPUs from NR_CPUS=8192 to nr_cpu_ids=1.
-[0.131053]  Tasks RCU enabled.
+ dmesg | grep cgroup
+[    0.306511] *** VALIDATE cgroup1 ***
+[    0.306512] *** VALIDATE cgroup2 ***
+[14849.409604] cgroup: fork rejected by pids controller in /user.slice/user-1000.slice/session-11.scope
